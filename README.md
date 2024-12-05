@@ -46,5 +46,5 @@ The application is built for scalability, high performance, and an intuitive use
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/fahimcce/cartify-bakend
+   git clone https://github.com/fahimcce/cartify-bakend.git
    ```
