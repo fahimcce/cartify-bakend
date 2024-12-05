@@ -32,6 +32,10 @@ model Customer {
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  products Products[]
+  review Reviews[]
+  orders Orders[]
   @@map("customers")
 }
 
@@ -45,7 +49,7 @@ model Vendor {
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+  shop Shop[]
   @@map("vendors")
 }
 
@@ -59,6 +63,7 @@ model Shop {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  vendor Vendor @relation(fields: [id], references: [id])
   @@map("shops")
 }
 
@@ -73,16 +78,50 @@ model Products {
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  categories Categories[]
+  customer Customer @relation(fields: [id],references: [id])
+
   @@map("products")
 }
 
-model Category {
+model ProductCategory {
   id            String   @id @unique @default(uuid())
   name          String
+  categories Categories[]
 
-  @@map("categories")
+  @@map("productCategories")
 }
 
+model Categories{
+  productId String 
+  products Products @relation(fields: [productId], references: [id])
+  categoryId String 
+  productCategory ProductCategory @relation(fields: [categoryId], references: [id])
+
+  @@id([productId,categoryId])
+}
+
+model Reviews{
+  id            String   @id @unique @default(uuid())
+  productId String
+  customerId String
+  rating Int
+  review String
+  customer Customer @relation(fields: [customerId], references: [id])
+  
+  @@map("reviews")
+}
+
+model Orders{
+  id            String   @id @unique @default(uuid())
+  productId String
+  customerId String
+  quantity Int
+  orderDate DateTime
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@map("orders")
+}
 
 
 
