@@ -28,33 +28,30 @@ const router = express.Router();
 
 router.post(
   "/create-admin",
-  //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  //   fileUploader.upload.single("file"),
-  //   (req: Request, res: Response, next: NextFunction) => {
-  //     req.body = userValidation.creatAdmin.parse(JSON.parse(req.body.data));
-  //     return userController.createAdmin(req, res, next);
-  //   }
-  userController.createAdmin
+  auth(UserRole.ADMIN),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.creatAdmin.parse(JSON.parse(req.body.data));
+    return userController.createAdmin(req, res, next);
+  }
 );
 router.post(
   "/create-vendor",
   //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  //   fileUploader.upload.single("file"),
-  //   (req: Request, res: Response, next: NextFunction) => {
-  //     req.body = userValidation.creatAdmin.parse(JSON.parse(req.body.data));
-  //     return userController.createAdmin(req, res, next);
-  //   }
-  userController.createVendor
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.creatVendor.parse(JSON.parse(req.body.data));
+    return userController.createVendor(req, res, next);
+  }
 );
 router.post(
   "/create-customer",
   //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  //   fileUploader.upload.single("file"),
-  //   (req: Request, res: Response, next: NextFunction) => {
-  //     req.body = userValidation.creatAdmin.parse(JSON.parse(req.body.data));
-  //     return userController.createAdmin(req, res, next);
-  //   }
-  userController.createCustomer
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.creatCustomer.parse(JSON.parse(req.body.data));
+    return userController.createCustomer(req, res, next);
+  }
 );
 
 // router.post(

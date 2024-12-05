@@ -4,8 +4,7 @@ import { userServices } from "./user.service";
 import sendResponse from "../../../shared/sendResponse";
 
 const createAdmin = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await userServices.createAdminToDB(payload);
+  const result = await userServices.createAdminToDB(req);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -15,8 +14,7 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createVendor = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await userServices.createVendorToDB(payload);
+  const result = await userServices.createVendorToDB(req);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -25,8 +23,7 @@ const createVendor = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const createCustomer = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await userServices.createCustomerToDB(payload);
+  const result = await userServices.createCustomerToDB(req);
   sendResponse(res, {
     statusCode: 200,
     success: true,
