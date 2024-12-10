@@ -32,8 +32,20 @@ const createCustomer = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await userServices.updateUser(id, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User Updated successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createAdmin,
   createVendor,
   createCustomer,
+  updateUser,
 };

@@ -4,11 +4,6 @@ import auth from "../../middlewares/auth";
 import { fileUploader } from "../../../helpers/fileUploaders";
 import { shopController } from "./shop.controller";
 import { shopValidation } from "./shop.validation";
-// import { categoryController } from "./category.controller";
-// import { fileUploader } from "../../../helpers/fileUploaders";
-// import { categoryValidation } from "./category.validation";
-// import auth from "../../middlewares/auth";
-// import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 

@@ -69,8 +69,7 @@ model Vendor {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user          User     @relation(fields: [email], references: [email])
-  products      Products[]
-  shop Shop[]
+  shop Shop?
   @@map("vendors")
 }
 
@@ -86,7 +85,7 @@ model Shop {
 
   products Products[]
 
-  vendorId      String  
+  vendorId      String  @unique
   vendor        Vendor   @relation(fields: [vendorId], references: [id])
   @@map("shops")
 }
@@ -98,17 +97,18 @@ model Products {
   description   String
   inventoryCount  Int
   images String?
+  price         Float
   discount      Int? @default(0)
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   shopId        String
   shop          Shop     @relation(fields: [shopId], references: [id])
-  vendorId String
-  vendor Vendor @relation(fields: [vendorId], references: [id])
+  
+  customerId String?
+  customer Customer? @relation(fields: [customerId],references: [id])
   categories Categories[]
-  customerId String
-  customer Customer @relation(fields: [customerId],references: [id])
+  orderItems    OrderItem[]
 
   @@map("products")
 }
@@ -129,6 +129,7 @@ model Categories{
   productCategory ProductCategory @relation(fields: [categoryId], references: [id])
 
   @@id([productId,categoryId])
+  @@map("categories")
 }
 
 model Reviews{
@@ -144,17 +145,29 @@ model Reviews{
 
 model Orders{
   id            String   @id @unique @default(uuid())
-  productId String
-  customerId String
-  quantity Int
+  productId String?
+  quantity Int?
   orderDate DateTime
+  orderStatus   OrderStatus @default(PENDING)
+  customerId String
   customer Customer @relation(fields: [customerId], references: [id])
-  test String
+  orderItems    OrderItem[] 
 
   @@map("orders")
 }
 
+model OrderItem {
+  id            String   @id @unique @default(uuid())
+  orderId       String
+  productId     String
+  quantity      Int
+  price         Float // Can be stored to track the price at the time of purchase
 
+  product       Products @relation(fields: [productId], references: [id])
+  order         Orders   @relation(fields: [orderId], references: [id])
+
+  @@map("orderItems")
+}
 
 
 enum UserRole {
@@ -172,4 +185,11 @@ enum UserStatus {
 enum Gender {
   MALE
   FEMALE
+}
+
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELED
 }

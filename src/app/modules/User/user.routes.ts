@@ -54,6 +54,8 @@ router.post(
   }
 );
 
+router.patch("/:id", auth(UserRole.ADMIN), userController.updateUser);
+
 // router.post(
 //   "/create-doctor",
 //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),

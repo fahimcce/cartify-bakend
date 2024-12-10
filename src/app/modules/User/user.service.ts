@@ -82,8 +82,22 @@ const createCustomerToDB = async (req: Request): Promise<Customer> => {
   return result;
 };
 
+const updateUser = async (id: string, payload: any) => {
+  // console.log(payload);
+  const user = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      ...payload,
+    },
+  });
+  return user;
+};
+
 export const userServices = {
   createAdminToDB,
   createVendorToDB,
   createCustomerToDB,
+  updateUser,
 };
