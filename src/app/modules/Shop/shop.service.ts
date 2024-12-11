@@ -14,7 +14,7 @@ const createShop = async (req: Request) => {
   }
   const user = req.user;
   const userData = await prisma.vendor.findUniqueOrThrow({
-    where: { email: user.email },
+    where: { email: user?.email },
   });
   req.body.vendorId = userData.id;
 

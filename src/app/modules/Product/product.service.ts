@@ -13,7 +13,7 @@ const createProduct = async (req: Request) => {
   const file = req.file as IFileResponse;
 
   const userData = await prisma.vendor.findUniqueOrThrow({
-    where: { email: req.user.email },
+    where: { email: req.user?.email },
     include: {
       shop: true,
     },

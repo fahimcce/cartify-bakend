@@ -11,7 +11,23 @@ router.post(
   orderControllers.createOrderByCustomer
 );
 
-// Route to get orders by customer
-router.get("/:customerId", auth(), orderControllers.getOrdersByCustomer);
+//get all orders  by Admin
+router.get("/", auth(UserRole.ADMIN), orderControllers.getAllOrders);
+
+//get orders any customer by Admin
+router.get(
+  "/:customerId",
+  auth(UserRole.ADMIN),
+  orderControllers.getOrdersByAdmin
+);
+
+// orders get by single customer
+router.get(
+  "/my-orders/:id",
+  auth(UserRole.CUSTOMER),
+  orderControllers.getOrdersByCustomer
+);
+
+router.patch("/:id", auth(UserRole.ADMIN), orderControllers.updateOrderStatus);
 
 export const OrderRoutes = router;

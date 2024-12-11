@@ -1,5 +1,6 @@
 import { OrderStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import { Request } from "express";
 
 const createOrderToDb = async (
   customerId: string,
@@ -58,21 +59,66 @@ const createOrderToDb = async (
   return result;
 };
 
-// Fetch orders by customer and include order items and product details
-const getOrdersByCustomer = async (customerId: string): Promise<any[]> => {
+const getOrdersByAdmin = async (customerId: string): Promise<any[]> => {
   return await prisma.orders.findMany({
     where: { customerId },
     include: {
       orderItems: {
         include: {
-          product: true, // Include product details for each order item
+          product: true,
         },
       },
     },
   });
 };
 
+const updateOrderStatus = async (id: string, payload: any) => {
+  const orderInfo = await prisma.orders.update({
+    where: { id },
+    data: {
+      ...payload,
+    },
+  });
+  return orderInfo;
+};
+
+const getOrdersByCustomer = async (id: string, req: Request) => {
+  const user = req.user;
+  if (!user) {
+    throw new Error("User is not authenticated");
+  }
+  // Fetch the customer's information based on their email
+  const userInfo = await prisma.customer.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+  // Ensure the `id` belongs to the authenticated user
+  if (userInfo.id !== id) {
+    throw new Error("Unauthorized access to customer orders");
+  }
+  // Fetch the orders for the given customer ID
+  const orders = await prisma.orders.findMany({
+    where: {
+      customerId: id,
+    },
+  });
+  // console.log(orders);
+  return orders;
+};
+
+const getAllOrders = async () => {
+  const result = await prisma.orders.findMany({
+    include: {
+      orderItems: true,
+    },
+  });
+  return result;
+};
 export const orderServices = {
   createOrderToDb,
+  getOrdersByAdmin,
+  updateOrderStatus,
   getOrdersByCustomer,
+  getAllOrders,
 };

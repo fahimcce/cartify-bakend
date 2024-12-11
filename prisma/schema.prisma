@@ -145,8 +145,6 @@ model Reviews{
 
 model Orders{
   id            String   @id @unique @default(uuid())
-  productId String?
-  quantity Int?
   orderDate DateTime
   orderStatus   OrderStatus @default(PENDING)
   customerId String

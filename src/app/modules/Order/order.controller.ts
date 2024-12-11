@@ -18,10 +18,10 @@ const createOrderByCustomer = catchAsync(
   }
 );
 
-// Controller to get orders by customer
-const getOrdersByCustomer = catchAsync(async (req: Request, res: Response) => {
+// Controller to get orders by Admin
+const getOrdersByAdmin = catchAsync(async (req: Request, res: Response) => {
   const { customerId } = req.params; // Get customer ID from the params
-  const orders = await orderServices.getOrdersByCustomer(customerId);
+  const orders = await orderServices.getOrdersByAdmin(customerId);
   // Send success response
   sendResponse(res, {
     statusCode: 200,
@@ -31,7 +31,47 @@ const getOrdersByCustomer = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Controller to get orders by Admin
+const getOrdersByCustomer = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params; // Get customer ID from the params
+  const orders = await orderServices.getOrdersByCustomer(id, req);
+  // Send success response
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Your all order fetch successfully",
+    data: orders,
+  });
+});
+
+// get All orders by Admin
+const getAllOrders = catchAsync(async (req: Request, res: Response) => {
+  const orders = await orderServices.getAllOrders();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All orders fetch successfully",
+    data: orders,
+  });
+});
+
+// Controller to get orders by customer
+const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params; // Get customer ID from the params
+  const orders = await orderServices.updateOrderStatus(id, req.body);
+  // Send success response
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Order Status Updated successfully",
+    data: orders,
+  });
+});
+
 export const orderControllers = {
   createOrderByCustomer,
+  getOrdersByAdmin,
+  updateOrderStatus,
   getOrdersByCustomer,
+  getAllOrders,
 };
