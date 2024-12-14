@@ -39,6 +39,9 @@ const getShops = async (payload: any) => {
   }
   const result = await prisma.shop.findMany({
     where: whereConditions,
+    include: {
+      vendor: true,
+    },
   });
   return {
     data: result,

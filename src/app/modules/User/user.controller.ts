@@ -43,9 +43,20 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await userServices.getAllUsers();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Users fetched successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createAdmin,
   createVendor,
   createCustomer,
   updateUser,
+  getAllUsers,
 };

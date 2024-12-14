@@ -56,14 +56,15 @@ const createVendorToDB = async (req: Request): Promise<Vendor> => {
   });
   return result;
 };
-const createCustomerToDB = async (req: Request): Promise<Customer> => {
+const createCustomerToDB = async (req: Request) => {
   const payload = req.body;
+
   const file = req.file as IFileResponse;
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.customer.profilePhoto = uploadToCloudinary?.secure_url;
   }
-  //   console.log("payload :", payload);
+
   const hashedPassword: string = await bcrypt.hash(payload.password, 12);
   const userData = {
     email: payload.customer.email,
@@ -95,9 +96,15 @@ const updateUser = async (id: string, payload: any) => {
   return user;
 };
 
+const getAllUsers = async () => {
+  const users = await prisma.user.findMany();
+  return users;
+};
+
 export const userServices = {
   createAdminToDB,
   createVendorToDB,
   createCustomerToDB,
   updateUser,
+  getAllUsers,
 };

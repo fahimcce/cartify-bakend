@@ -14,7 +14,23 @@ const loginUserToDb = async (payload: { email: string; password: string }) => {
       email: payload.email,
       status: UserStatus.ACTIVE,
     },
+    include: {
+      admin: true,
+      vendor: true,
+      customer: true,
+    },
   });
+  let validUser: any = null;
+
+  // Check which property is not null and assign it to validUser
+  if (userData.admin) {
+    validUser = userData.admin;
+  } else if (userData.vendor) {
+    validUser = userData.vendor;
+  } else if (userData.customer) {
+    validUser = userData.customer;
+  }
+
   const isPasswordValid: boolean = await bcrypt.compare(
     payload.password,
     userData.password
@@ -28,6 +44,9 @@ const loginUserToDb = async (payload: { email: string; password: string }) => {
     {
       email: payload.email,
       role: userData.role,
+      name: validUser.name,
+      id: validUser.id,
+      profilePhoto: validUser?.profilePhoto,
     },
     config.jwt_access_token as Secret,
     config.jwt_expires_in as string

@@ -17,7 +17,7 @@ router.post(
   }
 );
 
-router.get("/", auth(UserRole.ADMIN, UserRole.VENDOR), shopController.getShops);
+router.get("/", shopController.getShops);
 router.get(
   "/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),

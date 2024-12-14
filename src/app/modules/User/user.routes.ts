@@ -8,11 +8,7 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import { userValidation } from "./user.validation";
 const router = express.Router();
 
-// router.get(
-//   "/",
-//   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-//   userController.getAllUsers
-// );
+router.get("/", userController.getAllUsers);
 // router.get(
 //   "/me",
 //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
@@ -28,7 +24,7 @@ const router = express.Router();
 
 router.post(
   "/create-admin",
-  auth(UserRole.ADMIN),
+  // auth(UserRole.ADMIN),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.creatAdmin.parse(JSON.parse(req.body.data));
@@ -44,9 +40,9 @@ router.post(
     return userController.createVendor(req, res, next);
   }
 );
+
 router.post(
   "/create-customer",
-  //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.creatCustomer.parse(JSON.parse(req.body.data));
@@ -55,25 +51,6 @@ router.post(
 );
 
 router.patch("/:id", auth(UserRole.ADMIN), userController.updateUser);
-
-// router.post(
-//   "/create-doctor",
-//   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-//   fileUploader.upload.single("file"),
-//   (req: Request, res: Response, next: NextFunction) => {
-//     req.body = userValidation.createDoctor.parse(JSON.parse(req.body.data));
-//     return userController.createDoctor(req, res, next);
-//   }
-// );
-
-// router.post(
-//   "/create-patient",
-//   fileUploader.upload.single("file"),
-//   (req: Request, res: Response, next: NextFunction) => {
-//     req.body = userValidation.createPatient.parse(JSON.parse(req.body.data));
-//     return userController.createPatient(req, res, next);
-//   }
-// );
 
 // router.patch(
 //   "/update-profile",

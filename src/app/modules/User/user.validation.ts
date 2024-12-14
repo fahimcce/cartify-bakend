@@ -48,6 +48,7 @@ const creatCustomer = z.object({
     contactNumber: z.string({
       required_error: "Contact Number is required",
     }),
+    address: z.string().optional(),
   }),
 });
 
