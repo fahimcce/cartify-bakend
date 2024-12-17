@@ -1,4 +1,4 @@
-import { Admin, Prisma } from "@prisma/client";
+import { Admin, Prisma, Shop } from "@prisma/client";
 import { paginationHelpers } from "../../../helpers/paginationHelpers";
 import { IpaginationType } from "../../interfaces/pagination";
 import { IAdminFilterRequest } from "./admin.interfaces";
@@ -143,10 +143,20 @@ const updateAdminToDb = async (
 //   return result;
 // };
 
+const shopRestriction = async (id: string, data: Partial<Shop>) => {
+  const result = await prisma.shop.update({
+    where: { id },
+    data: {
+      ...data,
+    },
+  });
+  return result;
+};
 export const adminService = {
   getAllAdminFromDB,
   //   getSingleAdminFromDB,
   updateAdminToDb,
+  shopRestriction,
   //   deleteAdminFromDb,
   //   softDeleteAdminFromDb,
 };

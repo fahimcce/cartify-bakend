@@ -33,21 +33,4 @@ router.patch(
   productController.updateProduct
 );
 
-// router.get("/", auth(UserRole.ADMIN, UserRole.VENDOR), shopController.getShops);
-// router.get(
-//   "/:id",
-//   auth(UserRole.ADMIN, UserRole.VENDOR),
-//   shopController.getSingleShop
-// );
-// router.patch(
-//   "/:id",
-//   auth(UserRole.ADMIN, UserRole.VENDOR),
-//   shopController.updateShop
-// );
-// router.delete(
-//   "/:id",
-//   auth(UserRole.ADMIN, UserRole.VENDOR),
-//   shopController.deleteShop
-// );
-
 export const ProductRoutes = router;

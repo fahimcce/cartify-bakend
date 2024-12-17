@@ -2,11 +2,12 @@ import { Request } from "express";
 import { IFileResponse } from "../../interfaces/file";
 import { fileUploader } from "../../../helpers/fileUploaders";
 import prisma from "../../../shared/prisma";
-import { IAuthUser } from "../../interfaces/common";
+
 import { Prisma } from "@prisma/client";
 import { shopSearchableFields } from "./shop.constant";
 
 const createShop = async (req: Request) => {
+  // console.log("CLICKED CREATED SHOP");
   const file = req.file as IFileResponse;
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);

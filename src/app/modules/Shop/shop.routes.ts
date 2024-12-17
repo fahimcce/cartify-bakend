@@ -20,7 +20,7 @@ router.post(
 router.get("/", shopController.getShops);
 router.get(
   "/:id",
-  auth(UserRole.ADMIN, UserRole.VENDOR),
+  // auth(UserRole.ADMIN, UserRole.VENDOR),
   shopController.getSingleShop
 );
 router.patch(

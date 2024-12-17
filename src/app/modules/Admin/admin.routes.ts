@@ -19,6 +19,12 @@ router.patch(
   validateRequest(adminValidationsSchemas.update),
   adminController.updateSingleAdminById
 );
+
+router.patch(
+  "/restricted/:id",
+  auth(UserRole.ADMIN),
+  adminController.shopRestriction
+);
 // router.delete(
 //   "/:id",
 //   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),

@@ -149,7 +149,7 @@ const forgetPassword = async (payload: { email: string }) => {
 
   const resetUrl =
     config.reset_link + `?userId=${userData.id}&token=${resetToken}`;
-  console.log(resetUrl);
+  // console.log(resetUrl);
 
   await emailSender(
     userData.email,

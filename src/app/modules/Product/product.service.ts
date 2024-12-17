@@ -10,6 +10,7 @@ import { Prisma, Products } from "@prisma/client";
 import { productFilterableFields } from "./product.contant";
 
 const createProduct = async (req: Request) => {
+  // console.log("Create PRoduct CLICK");
   const file = req.file as IFileResponse;
 
   const userData = await prisma.vendor.findUniqueOrThrow({
@@ -47,9 +48,6 @@ const createProduct = async (req: Request) => {
       shopId: req.body.shopId,
     },
   });
-
-  //   console.log(result);
-
   return result;
 };
 
@@ -157,11 +155,8 @@ const getSingleProduct = async (id: string): Promise<Products | null> => {
 };
 
 const deleteProduct = async (id: string) => {
-  const result = await prisma.products.update({
+  const result = await prisma.products.delete({
     where: { id },
-    data: {
-      isDeleted: true,
-    },
   });
   return result;
 };
