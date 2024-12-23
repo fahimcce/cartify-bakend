@@ -7,8 +7,8 @@ The application is built for scalability, high performance, and an intuitive use
 
 ## **Live URL**
 
-- **Frontend**: [Cartify Frontend](frontend-url)
-- **Backend**: [Cartify Backend](backend-url)
+- **Frontend**: [Cartify Frontend](https://cartify-murex.vercel.app/)
+- **Backend**: [Cartify Backend](https://cartify-server.vercel.app/)
 
 ---
 
@@ -48,3 +48,26 @@ The application is built for scalability, high performance, and an intuitive use
    ```bash
    git clone https://github.com/fahimcce/cartify-bakend.git
    ```
+2. **Add .env file**:
+   ```bash
+      DATABASE_URL=
+      DIRECT_URL=     
+      NODE_ENV=
+      PORT=
+      JWT_ACCESS_TOKEN=
+      JWT_ACCESS_EXPIRES_IN=
+      JWT_REFRESH_TOKEN=
+      JWT_REFRESH_EXPIRES_IN=
+      RESET_TOKEN=
+      RESET_EXPIRES_IN=
+      RESET_LINK=
+      MAIL_SENDER_EMAIL=
+      MAIL_SENDER_PASSWORD
+      STRIPE_SECRET_KEY=
+   ```
+  3. **others Command**:
+``` bash
+    npm install
+    npm run dev
+```
+   
