@@ -1,28 +1,48 @@
-import { OrderStatus } from "@prisma/client";
+import { UserStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { Request } from "express";
 
-const createOrderToDb = async (
-  customerId: string,
-  cartItems: any[]
-): Promise<any> => {
-  // Ensure customer exists and is not deleted
-  await prisma.customer.findUniqueOrThrow({
-    where: { id: customerId, isDeleted: false },
+const createOrderToDb = async (req: Request) => {
+  const { cartItems, PaymentStatus } = req.body;
+  const user = req.user;
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      admin: true,
+      vendor: true,
+      customer: true,
+    },
   });
+  let validUser: any = null;
 
+  // Check which property is not null and assign it to validUser
+  if (userData.admin) {
+    validUser = userData.admin;
+  } else if (userData.vendor) {
+    validUser = userData.vendor;
+  } else if (userData.customer) {
+    validUser = userData.customer;
+  }
+
+  await prisma.customer.findUniqueOrThrow({
+    where: { id: validUser.id, isDeleted: false },
+  });
   // Create the order in a transaction
   const result = await prisma.$transaction(async (transactionClient) => {
     // Create the main order entry
     const newOrder = await transactionClient.orders.create({
       data: {
-        customerId,
+        customerId: validUser.id,
         orderDate: new Date(),
+        PaymentStatus,
       },
     });
 
     // Create order items for the newly created order
-    const orderItems = cartItems.map((item) => ({
+    const orderItems = cartItems.map((item: any) => ({
       productId: item.productId,
       quantity: item.quantity,
       price: item.price,
@@ -87,24 +107,24 @@ const getOrdersByCustomer = async (id: string, req: Request) => {
   if (!user) {
     throw new Error("User is not authenticated");
   }
-  // Fetch the customer's information based on their email
   const userInfo = await prisma.customer.findUniqueOrThrow({
     where: {
-      email: user.email,
+      id: id,
+    },
+    include: {
+      orders: {
+        include: {
+          orderItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      },
     },
   });
-  // Ensure the `id` belongs to the authenticated user
-  if (userInfo.id !== id) {
-    throw new Error("Unauthorized access to customer orders");
-  }
-  // Fetch the orders for the given customer ID
-  const orders = await prisma.orders.findMany({
-    where: {
-      customerId: id,
-    },
-  });
-  // console.log(orders);
-  return orders;
+  const result = userInfo.orders;
+  return result;
 };
 
 const getAllOrders = async () => {

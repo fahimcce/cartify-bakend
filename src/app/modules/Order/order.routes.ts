@@ -4,6 +4,12 @@ import { UserRole } from "@prisma/client";
 import { orderControllers } from "./order.controller";
 const router = express.Router();
 
+router.get(
+  "/my-orders/:id",
+  auth(UserRole.CUSTOMER),
+  orderControllers.getOrdersByCustomer
+);
+
 // Route to create an order
 router.post(
   "/",
@@ -19,13 +25,6 @@ router.get(
   "/:customerId",
   auth(UserRole.ADMIN),
   orderControllers.getOrdersByAdmin
-);
-
-// orders get by single customer
-router.get(
-  "/my-orders/:id",
-  auth(UserRole.CUSTOMER),
-  orderControllers.getOrdersByCustomer
 );
 
 router.patch("/:id", auth(UserRole.ADMIN), orderControllers.updateOrderStatus);

@@ -16,4 +16,5 @@ export default {
   reset_link: process.env.RESET_LINK,
   sender_mail: process.env.MAIL_SENDER_EMAIL,
   sender_password: process.env.MAIL_SENDER_PASSWORD,
+  stripe_secret_key: process.env.STRIPE_SECRET_KEY,
 };

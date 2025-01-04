@@ -13,19 +13,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.orderServices = void 0;
+const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
-const createOrderToDb = (customerId, cartItems) => __awaiter(void 0, void 0, void 0, function* () {
-    // Ensure customer exists and is not deleted
+const createOrderToDb = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cartItems, PaymentStatus } = req.body;
+    const user = req.user;
+    const userData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user === null || user === void 0 ? void 0 : user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+        include: {
+            admin: true,
+            vendor: true,
+            customer: true,
+        },
+    });
+    let validUser = null;
+    // Check which property is not null and assign it to validUser
+    if (userData.admin) {
+        validUser = userData.admin;
+    }
+    else if (userData.vendor) {
+        validUser = userData.vendor;
+    }
+    else if (userData.customer) {
+        validUser = userData.customer;
+    }
     yield prisma_1.default.customer.findUniqueOrThrow({
-        where: { id: customerId, isDeleted: false },
+        where: { id: validUser.id, isDeleted: false },
     });
     // Create the order in a transaction
     const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
         // Create the main order entry
         const newOrder = yield transactionClient.orders.create({
             data: {
-                customerId,
+                customerId: validUser.id,
                 orderDate: new Date(),
+                PaymentStatus,
             },
         });
         // Create order items for the newly created order
@@ -85,24 +110,24 @@ const getOrdersByCustomer = (id, req) => __awaiter(void 0, void 0, void 0, funct
     if (!user) {
         throw new Error("User is not authenticated");
     }
-    // Fetch the customer's information based on their email
     const userInfo = yield prisma_1.default.customer.findUniqueOrThrow({
         where: {
-            email: user.email,
+            id: id,
+        },
+        include: {
+            orders: {
+                include: {
+                    orderItems: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                },
+            },
         },
     });
-    // Ensure the `id` belongs to the authenticated user
-    if (userInfo.id !== id) {
-        throw new Error("Unauthorized access to customer orders");
-    }
-    // Fetch the orders for the given customer ID
-    const orders = yield prisma_1.default.orders.findMany({
-        where: {
-            customerId: id,
-        },
-    });
-    // console.log(orders);
-    return orders;
+    const result = userInfo.orders;
+    return result;
 });
 const getAllOrders = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.orders.findMany({

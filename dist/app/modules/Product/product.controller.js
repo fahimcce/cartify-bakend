@@ -19,7 +19,6 @@ const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const pick_1 = __importDefault(require("../../../shared/pick"));
 const product_contant_1 = require("./product.contant");
 const createProduct = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //   console.log(req.file);
     const result = yield product_service_1.productServices.createProduct(req);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,

@@ -13,16 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.shopServices = void 0;
-const fileUploaders_1 = require("../../../helpers/fileUploaders");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const shop_constant_1 = require("./shop.constant");
 const createShop = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log("CLICKED CREATED SHOP");
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.shopLogo = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
     const user = req.user;
     const userData = yield prisma_1.default.vendor.findUniqueOrThrow({
         where: { email: user === null || user === void 0 ? void 0 : user.email },
@@ -35,7 +28,6 @@ const createShop = (req) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getShops = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     let whereConditions;
-    // Apply filter only if payload.shopName exists
     if (payload.shopName) {
         whereConditions = {
             OR: shop_constant_1.shopSearchableFields.map((field) => ({
@@ -47,7 +39,7 @@ const getShops = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         };
     }
     const result = yield prisma_1.default.shop.findMany({
-        where: whereConditions,
+        where: Object.assign(Object.assign({}, (whereConditions || {})), { isDeleted: false }),
         include: {
             vendor: true,
         },
@@ -59,6 +51,9 @@ const getShops = (payload) => __awaiter(void 0, void 0, void 0, function* () {
 const singleShop = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.shop.findUniqueOrThrow({
         where: { id },
+        include: {
+            products: true,
+        },
     });
     return result;
 });
@@ -78,10 +73,101 @@ const deleteShop = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const followShop = (customerId, shopId) => __awaiter(void 0, void 0, void 0, function* () {
+    const preFollowChk = yield prisma_1.default.customerFollowsShop.findUnique({
+        where: {
+            customerId_shopId: {
+                customerId,
+                shopId,
+            },
+        },
+    });
+    const followerFind = yield prisma_1.default.shop.findUniqueOrThrow({
+        where: { id: shopId },
+    });
+    let follower = followerFind.follower;
+    if (!preFollowChk) {
+        follower++;
+        const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+            yield transactionClient.customerFollowsShop.create({
+                data: {
+                    customerId,
+                    shopId,
+                },
+            });
+            const FollowerUpdate = yield transactionClient.shop.update({
+                where: {
+                    id: shopId,
+                },
+                data: {
+                    follower: follower,
+                },
+            });
+            return FollowerUpdate;
+        }));
+        return result;
+    }
+    else {
+        throw new Error("Already Followed");
+    }
+});
+const unfollowShop = (customerId, shopId) => __awaiter(void 0, void 0, void 0, function* () {
+    const isFollowed = yield prisma_1.default.customerFollowsShop.findUnique({
+        where: {
+            customerId_shopId: {
+                customerId,
+                shopId,
+            },
+        },
+    });
+    const followerFind = yield prisma_1.default.shop.findUniqueOrThrow({
+        where: { id: shopId },
+    });
+    let follower = followerFind.follower;
+    if (isFollowed) {
+        follower--;
+        const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+            yield transactionClient.customerFollowsShop.delete({
+                where: {
+                    customerId_shopId: {
+                        customerId,
+                        shopId,
+                    },
+                },
+            });
+            const FollowerUpdate = yield transactionClient.shop.update({
+                where: {
+                    id: shopId,
+                },
+                data: {
+                    follower: follower,
+                },
+            });
+            return FollowerUpdate;
+        }));
+        return result;
+    }
+    else {
+        const message = "Follow first then unfollow";
+        return message;
+    }
+});
+const getFollowedShops = (customerId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.customerFollowsShop.findMany({
+        where: { customerId },
+        include: {
+            shop: true,
+        },
+    });
+    return result.map((follow) => follow.shop);
+});
 exports.shopServices = {
     createShop,
     getShops,
     singleShop,
     updateShop,
     deleteShop,
+    followShop,
+    unfollowShop,
+    getFollowedShops,
 };

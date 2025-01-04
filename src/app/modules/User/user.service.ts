@@ -1,18 +1,8 @@
 import { Admin, Customer, UserRole, Vendor } from "@prisma/client";
-import { IFileResponse } from "../../interfaces/file";
-import { fileUploader } from "../../../helpers/fileUploaders";
 import * as bcrypt from "bcrypt";
 import prisma from "../../../shared/prisma";
-import { Request } from "express";
 
-const createAdminToDB = async (req: Request): Promise<Admin> => {
-  const payload = req.body;
-  const file = req.file as IFileResponse;
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.admin.profilePhoto = uploadToCloudinary?.secure_url;
-  }
-  //   console.log("payload :", payload);
+const createAdminToDB = async (payload: any): Promise<Admin> => {
   const hashedPassword: string = await bcrypt.hash(payload.password, 12);
   const userData = {
     email: payload.admin.email,
@@ -31,14 +21,7 @@ const createAdminToDB = async (req: Request): Promise<Admin> => {
   return result;
 };
 
-const createVendorToDB = async (req: Request): Promise<Vendor> => {
-  const payload = req.body;
-  const file = req.file as IFileResponse;
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.vendor.profilePhoto = uploadToCloudinary?.secure_url;
-  }
-  //   console.log("payload :", payload);
+const createVendorToDB = async (payload: any): Promise<Vendor> => {
   const hashedPassword: string = await bcrypt.hash(payload.password, 12);
   const userData = {
     email: payload.vendor.email,
@@ -56,15 +39,7 @@ const createVendorToDB = async (req: Request): Promise<Vendor> => {
   });
   return result;
 };
-const createCustomerToDB = async (req: Request) => {
-  const payload = req.body;
-
-  const file = req.file as IFileResponse;
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.customer.profilePhoto = uploadToCloudinary?.secure_url;
-  }
-
+const createCustomerToDB = async (payload: any): Promise<Customer> => {
   const hashedPassword: string = await bcrypt.hash(payload.password, 12);
   const userData = {
     email: payload.customer.email,

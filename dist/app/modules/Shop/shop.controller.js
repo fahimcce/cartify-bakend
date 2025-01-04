@@ -17,7 +17,6 @@ const catchAsync_1 = require("../../../shared/catchAsync");
 const shop_service_1 = require("./shop.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const createShop = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //   console.log(req.file);
     const result = yield shop_service_1.shopServices.createShop(req);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
@@ -62,10 +61,43 @@ const deleteShop = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const followShop = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { customerId, shopId } = req.body;
+    const result = yield shop_service_1.shopServices.followShop(customerId, shopId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Shop followed successfully.",
+        data: result,
+    });
+}));
+const unfollowShop = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { customerId, shopId } = req.body;
+    const result = yield shop_service_1.shopServices.unfollowShop(customerId, shopId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Shop unfollowed successfully.",
+        data: result,
+    });
+}));
+const getFollowedShops = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { customerId } = req.params;
+    const result = yield shop_service_1.shopServices.getFollowedShops(customerId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Retrieved followed shops successfully.",
+        data: result,
+    });
+}));
 exports.shopController = {
     createShop,
     getShops,
     getSingleShop,
     updateShop,
     deleteShop,
+    followShop,
+    unfollowShop,
+    getFollowedShops,
 };

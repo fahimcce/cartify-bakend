@@ -6,7 +6,6 @@ import pick from "../../../shared/pick";
 import { productFilterableFields } from "./product.contant";
 
 const createProduct = catchAsync(async (req: Request, res: Response) => {
-  //   console.log(req.file);
   const result = await productServices.createProduct(req);
   sendResponse(res, {
     statusCode: 200,
@@ -73,6 +72,16 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getFlashSaleProduct = catchAsync(async (req: Request, res: Response) => {
+  const result = await productServices.getFlashSaleProduct();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "FlashSale Products Fetched Successfully !!",
+    data: result,
+  });
+});
+
 export const productController = {
   createProduct,
   duplicateProduct,
@@ -80,4 +89,5 @@ export const productController = {
   getSingleProduct,
   deleteProduct,
   updateProduct,
+  getFlashSaleProduct,
 };

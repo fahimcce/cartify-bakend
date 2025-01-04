@@ -1,18 +1,10 @@
 import { Request } from "express";
-import { IFileResponse } from "../../interfaces/file";
-import { fileUploader } from "../../../helpers/fileUploaders";
 import prisma from "../../../shared/prisma";
 
 import { Prisma } from "@prisma/client";
 import { shopSearchableFields } from "./shop.constant";
 
 const createShop = async (req: Request) => {
-  // console.log("CLICKED CREATED SHOP");
-  const file = req.file as IFileResponse;
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.shopLogo = uploadToCloudinary?.secure_url;
-  }
   const user = req.user;
   const userData = await prisma.vendor.findUniqueOrThrow({
     where: { email: user?.email },
@@ -27,7 +19,6 @@ const createShop = async (req: Request) => {
 
 const getShops = async (payload: any) => {
   let whereConditions: Prisma.ShopWhereInput | undefined;
-  // Apply filter only if payload.shopName exists
   if (payload.shopName) {
     whereConditions = {
       OR: shopSearchableFields.map((field) => ({
@@ -39,7 +30,10 @@ const getShops = async (payload: any) => {
     };
   }
   const result = await prisma.shop.findMany({
-    where: whereConditions,
+    where: {
+      ...(whereConditions || {}),
+      isDeleted: false,
+    },
     include: {
       vendor: true,
     },
@@ -52,6 +46,9 @@ const getShops = async (payload: any) => {
 const singleShop = async (id: string) => {
   const result = await prisma.shop.findUniqueOrThrow({
     where: { id },
+    include: {
+      products: true,
+    },
   });
   return result;
 };
@@ -74,10 +71,102 @@ const deleteShop = async (id: string) => {
   return result;
 };
 
+const followShop = async (customerId: string, shopId: string) => {
+  const preFollowChk = await prisma.customerFollowsShop.findUnique({
+    where: {
+      customerId_shopId: {
+        customerId,
+        shopId,
+      },
+    },
+  });
+  const followerFind = await prisma.shop.findUniqueOrThrow({
+    where: { id: shopId },
+  });
+  let follower = followerFind.follower;
+  if (!preFollowChk) {
+    follower++;
+    const result = await prisma.$transaction(async (transactionClient) => {
+      await transactionClient.customerFollowsShop.create({
+        data: {
+          customerId,
+          shopId,
+        },
+      });
+      const FollowerUpdate = await transactionClient.shop.update({
+        where: {
+          id: shopId,
+        },
+        data: {
+          follower: follower,
+        },
+      });
+      return FollowerUpdate;
+    });
+    return result;
+  } else {
+    throw new Error("Already Followed");
+  }
+};
+
+const unfollowShop = async (customerId: string, shopId: string) => {
+  const isFollowed = await prisma.customerFollowsShop.findUnique({
+    where: {
+      customerId_shopId: {
+        customerId,
+        shopId,
+      },
+    },
+  });
+  const followerFind = await prisma.shop.findUniqueOrThrow({
+    where: { id: shopId },
+  });
+  let follower = followerFind.follower;
+  if (isFollowed) {
+    follower--;
+    const result = await prisma.$transaction(async (transactionClient) => {
+      await transactionClient.customerFollowsShop.delete({
+        where: {
+          customerId_shopId: {
+            customerId,
+            shopId,
+          },
+        },
+      });
+      const FollowerUpdate = await transactionClient.shop.update({
+        where: {
+          id: shopId,
+        },
+        data: {
+          follower: follower,
+        },
+      });
+      return FollowerUpdate;
+    });
+    return result;
+  } else {
+    const message = "Follow first then unfollow";
+    return message;
+  }
+};
+
+const getFollowedShops = async (customerId: string) => {
+  const result = await prisma.customerFollowsShop.findMany({
+    where: { customerId },
+    include: {
+      shop: true,
+    },
+  });
+  return result.map((follow) => follow.shop);
+};
+
 export const shopServices = {
   createShop,
   getShops,
   singleShop,
   updateShop,
   deleteShop,
+  followShop,
+  unfollowShop,
+  getFollowedShops,
 };

@@ -18,9 +18,7 @@ const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const order_service_1 = require("./order.service");
 // Controller to create an order
 const createOrderByCustomer = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { customerId, cartItems } = req.body; // Cart items and customer ID should be in the
-    const order = yield order_service_1.orderServices.createOrderToDb(customerId, cartItems);
-    // Send success response
+    const order = yield order_service_1.orderServices.createOrderToDb(req);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,
@@ -42,9 +40,8 @@ const getOrdersByAdmin = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(vo
 }));
 // Controller to get orders by Admin
 const getOrdersByCustomer = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params; // Get customer ID from the params
+    const { id } = req.params;
     const orders = yield order_service_1.orderServices.getOrdersByCustomer(id, req);
-    // Send success response
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,

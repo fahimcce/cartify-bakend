@@ -1,8 +1,7 @@
 import { Request } from "express";
-import { IFileResponse } from "../../interfaces/file";
-import { fileUploader } from "../../../helpers/fileUploaders";
+
 import prisma from "../../../shared/prisma";
-import ApiError from "../../errors/ApiError";
+
 import { IProductFilterRequest } from "./product.interface";
 import { IpaginationType } from "../../interfaces/pagination";
 import { paginationHelpers } from "../../../helpers/paginationHelpers";
@@ -10,23 +9,12 @@ import { Prisma, Products } from "@prisma/client";
 import { productFilterableFields } from "./product.contant";
 
 const createProduct = async (req: Request) => {
-  // console.log("Create PRoduct CLICK");
-  const file = req.file as IFileResponse;
-
   const userData = await prisma.vendor.findUniqueOrThrow({
     where: { email: req.user?.email },
-    include: {
-      shop: true,
-    },
+    include: { shop: true },
   });
 
-  console.log();
   req.body.shopId = userData.shop?.id;
-  //Handle file upload
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.images = uploadToCloudinary?.secure_url;
-  }
 
   const shopData = await prisma.shop.findUniqueOrThrow({
     where: { id: req.body.shopId },
@@ -35,10 +23,9 @@ const createProduct = async (req: Request) => {
   if (!shopData) {
     throw new Error("Shop id is not valid");
   }
-  // console.log(req.body);
 
-  //Create the product
-  const result = await prisma.products.create({
+  // Create the product first
+  const product = await prisma.products.create({
     data: {
       name: req.body.name,
       description: req.body.description,
@@ -47,7 +34,66 @@ const createProduct = async (req: Request) => {
       price: req.body.price,
       shopId: req.body.shopId,
     },
+    include: {
+      categories: true,
+      shop: true,
+    },
   });
+
+  const categoryLinks = req.body.categories.map((categoryId: string) => ({
+    productId: product.id,
+    categoryId: categoryId,
+  }));
+
+  await prisma.categories.createMany({
+    data: categoryLinks,
+  });
+
+  return product;
+};
+
+const updateProduct = async (id: string, payload: any) => {
+  const productInfo = await prisma.products.findUniqueOrThrow({
+    where: { id },
+  });
+
+  await prisma.$transaction(async (transactionClient) => {
+    const { categories, ...updateData } = payload;
+
+    await transactionClient.products.update({
+      where: { id },
+      data: {
+        ...updateData,
+      },
+    });
+
+    if (categories && categories.length > 0) {
+      await transactionClient.categories.deleteMany({
+        where: { productId: productInfo.id },
+      });
+
+      for (const categoryId of categories) {
+        await transactionClient.categories.create({
+          data: {
+            productId: productInfo.id,
+            categoryId: categoryId,
+          },
+        });
+      }
+    }
+  });
+
+  const result = await prisma.products.findUnique({
+    where: { id },
+    include: {
+      categories: {
+        include: {
+          productCategory: true,
+        },
+      },
+    },
+  });
+
   return result;
 };
 
@@ -79,7 +125,6 @@ const getAllProduct = async (
   params: IProductFilterRequest,
   options: IpaginationType
 ) => {
-  // console.log(options);
   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
   const { searchTerm, ...filterData } = params;
   const andConditions: Prisma.ProductsWhereInput[] = [];
@@ -115,7 +160,14 @@ const getAllProduct = async (
 
   const result = await prisma.products.findMany({
     where: whereConditions,
-    include: { shop: true },
+    include: {
+      shop: true,
+      categories: {
+        include: {
+          productCategory: true,
+        },
+      },
+    },
     skip,
     take: limit,
     orderBy:
@@ -161,58 +213,13 @@ const deleteProduct = async (id: string) => {
   return result;
 };
 
-const updateProduct = async (id: string, payload: any) => {
-  const { categories, ...productData } = payload;
-  // console.log("categories:", categories);
-  // console.log("Product Data:", productData);
-
-  const productInfo = await prisma.products.findUniqueOrThrow({
-    where: { id },
-  });
-
-  await prisma.$transaction(async (transactionClient) => {
-    const updateProduct = await transactionClient.products.update({
-      where: { id },
-      data: {
-        ...productData,
-      },
-      include: {
-        categories: true,
-      },
-    });
-
-    if (categories && categories.length > 0) {
-      const deleteFilterProduct = categories.filter(
-        (category: any) => category.isDeleted
-      );
-      for (const categoryId of deleteFilterProduct) {
-        await transactionClient.categories.deleteMany({
-          where: {
-            productId: productInfo.id,
-            categoryId: categoryId.categoryId,
-          },
-        });
-      }
-
-      const createProductFilter = categories.filter(
-        (category: any) => !category.isDeleted
-      );
-      for (const categoryId of createProductFilter) {
-        await transactionClient.categories.create({
-          data: {
-            productId: productInfo.id,
-            categoryId: categoryId.categoryId,
-          },
-        });
-      }
-    }
-  });
-
-  const result = await prisma.products.findUnique({
+const getFlashSaleProduct = async () => {
+  const result = await prisma.products.findMany({
     where: {
-      id: productInfo.id,
+      flashSale: true,
     },
     include: {
+      shop: true,
       categories: {
         include: {
           productCategory: true,
@@ -220,7 +227,6 @@ const updateProduct = async (id: string, payload: any) => {
       },
     },
   });
-
   return result;
 };
 
@@ -231,4 +237,5 @@ export const productServices = {
   getSingleProduct,
   deleteProduct,
   updateProduct,
+  getFlashSaleProduct,
 };

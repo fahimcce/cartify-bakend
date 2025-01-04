@@ -47,17 +47,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userServices = void 0;
 const client_1 = require("@prisma/client");
-const fileUploaders_1 = require("../../../helpers/fileUploaders");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
-const createAdminToDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const payload = req.body;
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.admin.profilePhoto = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
-    //   console.log("payload :", payload);
+const createAdminToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const hashedPassword = yield bcrypt.hash(payload.password, 12);
     const userData = {
         email: payload.admin.email,
@@ -75,14 +67,7 @@ const createAdminToDB = (req) => __awaiter(void 0, void 0, void 0, function* () 
     }));
     return result;
 });
-const createVendorToDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const payload = req.body;
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.vendor.profilePhoto = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
-    //   console.log("payload :", payload);
+const createVendorToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const hashedPassword = yield bcrypt.hash(payload.password, 12);
     const userData = {
         email: payload.vendor.email,
@@ -100,13 +85,7 @@ const createVendorToDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
     }));
     return result;
 });
-const createCustomerToDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const payload = req.body;
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.customer.profilePhoto = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
+const createCustomerToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const hashedPassword = yield bcrypt.hash(payload.password, 12);
     const userData = {
         email: payload.customer.email,

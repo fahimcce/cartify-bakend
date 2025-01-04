@@ -6,9 +6,7 @@ import { orderServices } from "./order.service";
 // Controller to create an order
 const createOrderByCustomer = catchAsync(
   async (req: Request, res: Response) => {
-    const { customerId, cartItems } = req.body; // Cart items and customer ID should be in the
-    const order = await orderServices.createOrderToDb(customerId, cartItems);
-    // Send success response
+    const order = await orderServices.createOrderToDb(req);
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -33,9 +31,8 @@ const getOrdersByAdmin = catchAsync(async (req: Request, res: Response) => {
 
 // Controller to get orders by Admin
 const getOrdersByCustomer = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params; // Get customer ID from the params
+  const { id } = req.params;
   const orders = await orderServices.getOrdersByCustomer(id, req);
-  // Send success response
   sendResponse(res, {
     statusCode: 200,
     success: true,

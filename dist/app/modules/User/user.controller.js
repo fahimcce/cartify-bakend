@@ -17,7 +17,7 @@ const catchAsync_1 = require("../../../shared/catchAsync");
 const user_service_1 = require("./user.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const createAdmin = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.userServices.createAdminToDB(req);
+    const result = yield user_service_1.userServices.createAdminToDB(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,
@@ -26,7 +26,7 @@ const createAdmin = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
     });
 }));
 const createVendor = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.userServices.createVendorToDB(req);
+    const result = yield user_service_1.userServices.createVendorToDB(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,
@@ -35,7 +35,7 @@ const createVendor = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
     });
 }));
 const createCustomer = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.userServices.createCustomerToDB(req);
+    const result = yield user_service_1.userServices.createCustomerToDB(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,

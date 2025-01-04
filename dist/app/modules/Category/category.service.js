@@ -13,15 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.categoryServices = void 0;
-const fileUploaders_1 = require("../../../helpers/fileUploaders");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const category_constant_1 = require("./category.constant");
 const createCategory = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.categoryImage = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
     const result = yield prisma_1.default.productCategory.create({
         data: req.body,
     });

@@ -14,7 +14,7 @@ const creatAdmin = z.object({
     contactNumber: z.string({
       required_error: "Contact Number is required",
     }),
-    address: z.string().optional(),
+    profilePhoto: z.string().optional(),
   }),
 });
 const creatVendor = z.object({
@@ -31,7 +31,7 @@ const creatVendor = z.object({
     contactNumber: z.string({
       required_error: "Contact Number is required",
     }),
-    address: z.string().optional(),
+    profilePhoto: z.string().optional(),
   }),
 });
 const creatCustomer = z.object({
@@ -48,7 +48,7 @@ const creatCustomer = z.object({
     contactNumber: z.string({
       required_error: "Contact Number is required",
     }),
-    address: z.string().optional(),
+    profilePhoto: z.string().optional(),
   }),
 });
 

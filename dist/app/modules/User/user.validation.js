@@ -16,7 +16,7 @@ const creatAdmin = zod_1.z.object({
         contactNumber: zod_1.z.string({
             required_error: "Contact Number is required",
         }),
-        address: zod_1.z.string().optional(),
+        profilePhoto: zod_1.z.string().optional(),
     }),
 });
 const creatVendor = zod_1.z.object({
@@ -33,7 +33,7 @@ const creatVendor = zod_1.z.object({
         contactNumber: zod_1.z.string({
             required_error: "Contact Number is required",
         }),
-        address: zod_1.z.string().optional(),
+        profilePhoto: zod_1.z.string().optional(),
     }),
 });
 const creatCustomer = zod_1.z.object({
@@ -50,7 +50,7 @@ const creatCustomer = zod_1.z.object({
         contactNumber: zod_1.z.string({
             required_error: "Contact Number is required",
         }),
-        address: zod_1.z.string().optional(),
+        profilePhoto: zod_1.z.string().optional(),
     }),
 });
 exports.userValidation = {

@@ -4,7 +4,6 @@ import { shopServices } from "./shop.service";
 import sendResponse from "../../../shared/sendResponse";
 
 const createShop = catchAsync(async (req: Request, res: Response) => {
-  //   console.log(req.file);
   const result = await shopServices.createShop(req);
   sendResponse(res, {
     statusCode: 200,
@@ -54,10 +53,46 @@ const deleteShop = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const followShop = catchAsync(async (req: Request, res: Response) => {
+  const { customerId, shopId } = req.body;
+  const result = await shopServices.followShop(customerId, shopId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Shop followed successfully.",
+    data: result,
+  });
+});
+
+const unfollowShop = catchAsync(async (req: Request, res: Response) => {
+  const { customerId, shopId } = req.body;
+  const result = await shopServices.unfollowShop(customerId, shopId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Shop unfollowed successfully.",
+    data: result,
+  });
+});
+
+const getFollowedShops = catchAsync(async (req: Request, res: Response) => {
+  const { customerId } = req.params;
+  const result = await shopServices.getFollowedShops(customerId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Retrieved followed shops successfully.",
+    data: result,
+  });
+});
+
 export const shopController = {
   createShop,
   getShops,
   getSingleShop,
   updateShop,
   deleteShop,
+  followShop,
+  unfollowShop,
+  getFollowedShops,
 };

@@ -24,27 +24,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productServices = void 0;
-const fileUploaders_1 = require("../../../helpers/fileUploaders");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const paginationHelpers_1 = require("../../../helpers/paginationHelpers");
 const product_contant_1 = require("./product.contant");
 const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    // console.log("Create PRoduct CLICK");
-    const file = req.file;
     const userData = yield prisma_1.default.vendor.findUniqueOrThrow({
         where: { email: (_a = req.user) === null || _a === void 0 ? void 0 : _a.email },
         include: {
             shop: true,
         },
     });
-    console.log();
     req.body.shopId = (_b = userData.shop) === null || _b === void 0 ? void 0 : _b.id;
-    //Handle file upload
-    if (file) {
-        const uploadToCloudinary = yield fileUploaders_1.fileUploader.uploadToCloudinary(file);
-        req.body.images = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
     const shopData = yield prisma_1.default.shop.findUniqueOrThrow({
         where: { id: req.body.shopId },
     });
@@ -89,10 +80,10 @@ const duplicateProduct = (id, req) => __awaiter(void 0, void 0, void 0, function
     return newProduct;
 });
 const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(options);
     const { limit, page, skip } = paginationHelpers_1.paginationHelpers.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
     const andConditions = [];
+    // console.log(searchTerm);
     if (params.searchTerm) {
         andConditions.push({
             OR: product_contant_1.productFilterableFields.map((field) => ({
@@ -163,8 +154,6 @@ const deleteProduct = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const updateProduct = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { categories } = payload, productData = __rest(payload, ["categories"]);
-    // console.log("categories:", categories);
-    // console.log("Product Data:", productData);
     const productInfo = yield prisma_1.default.products.findUniqueOrThrow({
         where: { id },
     });

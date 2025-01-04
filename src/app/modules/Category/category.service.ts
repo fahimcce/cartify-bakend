@@ -1,16 +1,9 @@
 import { Request } from "express";
-import { IFileResponse } from "../../interfaces/file";
-import { fileUploader } from "../../../helpers/fileUploaders";
 import prisma from "../../../shared/prisma";
 import { categorySearchableFields } from "./category.constant";
 import { Prisma } from "@prisma/client";
 
 const createCategory = async (req: Request) => {
-  const file = req.file as IFileResponse;
-  if (file) {
-    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.categoryImage = uploadToCloudinary?.secure_url;
-  }
   const result = await prisma.productCategory.create({
     data: req.body,
   });
@@ -19,7 +12,6 @@ const createCategory = async (req: Request) => {
 
 const getCategories = async (payload: any) => {
   let whereConditions: Prisma.ProductCategoryWhereInput | undefined;
-  // Apply filter only if payload.name exists
   if (payload.name) {
     whereConditions = {
       OR: categorySearchableFields.map((field) => ({
@@ -60,10 +52,25 @@ const deleteCategory = async (id: string) => {
   return result;
 };
 
+const getCategoryProducts = async (id: string) => {
+  const categories = await prisma.categories.findMany({
+    where: {
+      categoryId: id,
+    },
+    include: {
+      products: true,
+    },
+  });
+
+  const products = categories.flatMap((category) => category.products);
+  return products;
+};
+
 export const categoryServices = {
   createCategory,
   getCategories,
   updateCategory,
   deleteCategory,
   singleCategory,
+  getCategoryProducts,
 };

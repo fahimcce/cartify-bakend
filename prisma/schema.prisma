@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 
@@ -41,23 +40,7 @@ model Admin {
 
 }
 
-model Customer {
-  id            String   @id @unique @default(uuid())
-  email         String   @unique
-  name          String
-  profilePhoto  String?
-  contactNumber String?
-  address       String?
-  isDeleted     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  user          User     @relation(fields: [email], references: [email])
 
-  products Products[]
-  review Reviews[]
-  orders Orders[]
-  @@map("customers")
-}
 
 model Vendor {
   id            String   @id @unique @default(uuid())
@@ -74,6 +57,26 @@ model Vendor {
   @@map("vendors")
 }
 
+model Customer {
+  id            String   @id @unique @default(uuid())
+  email         String   @unique
+  name          String
+  profilePhoto  String?
+  contactNumber String?
+  address       String?
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [email], references: [email])
+
+  CustomerFollowsShop CustomerFollowsShop[]
+
+  products Products[]
+  review Reviews[]
+  orders Orders[]
+  @@map("customers")
+}
+
 model Shop {
   id            String   @id @unique @default(uuid())
   shopName          String
@@ -84,13 +87,28 @@ model Shop {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   restricted    Boolean  @default(false)
+  follower      Int     @default(0)
+  CustomerFollowsShop CustomerFollowsShop[]
 
   products Products[]
-
   vendorId      String  @unique
   vendor        Vendor   @relation(fields: [vendorId], references: [id])
   @@map("shops")
 }
+
+model CustomerFollowsShop {
+  customerId String
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  shopId     String
+  shop       Shop   @relation(fields: [shopId], references: [id])
+
+
+  @@id([customerId, shopId]) 
+  @@map("customerFollowsShops") 
+}
+
+
 
 
 model Products {
@@ -101,6 +119,7 @@ model Products {
   images String?
   price         Float
   discount      Int? @default(0)
+  flashSale     Boolean @default(false)
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -111,6 +130,7 @@ model Products {
   customer Customer? @relation(fields: [customerId],references: [id])
   categories Categories[]
   orderItems    OrderItem[]
+  reviewProducts ReviewProducts[]
 
   @@map("products")
 }
@@ -137,18 +157,31 @@ model Categories{
 model Reviews{
   id            String   @id @unique @default(uuid())
   productId String
-  customerId String
-  rating Int
+  rating Float
   review String
+  customerId String
   customer Customer @relation(fields: [customerId], references: [id])
+  reviewProducts ReviewProducts[]
   
   @@map("reviews")
+}
+
+model ReviewProducts{
+  id String @id @unique @default(uuid())
+  reviewId String
+  productId String
+  products Products @relation(fields: [productId], references: [id])
+  reviews Reviews @relation(fields: [reviewId], references: [id])
+
+
+  @@map("reviewproducts")
 }
 
 model Orders{
   id            String   @id @unique @default(uuid())
   orderDate DateTime
   orderStatus   OrderStatus @default(PENDING)
+  PaymentStatus PaymentStatus @default(PENDING)
   customerId String
   customer Customer @relation(fields: [customerId], references: [id])
   orderItems    OrderItem[] 
@@ -161,7 +194,7 @@ model OrderItem {
   orderId       String
   productId     String
   quantity      Int
-  price         Float // Can be stored to track the price at the time of purchase
+  price         Float 
 
   product       Products @relation(fields: [productId], references: [id])
   order         Orders   @relation(fields: [orderId], references: [id])
@@ -192,4 +225,9 @@ enum OrderStatus {
   PENDING
   COMPLETED
   CANCELED
+}
+
+enum PaymentStatus {
+  COMPLETED
+  PENDING
 }
