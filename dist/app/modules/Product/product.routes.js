@@ -12,9 +12,8 @@ const router = express_1.default.Router();
 router.post("/create-product", (0, auth_1.default)(client_1.UserRole.VENDOR, client_1.UserRole.ADMIN), product_controller_1.productController.createProduct);
 router.post("/create-duplicate-product/:id", (0, auth_1.default)(client_1.UserRole.VENDOR, client_1.UserRole.ADMIN), product_controller_1.productController.duplicateProduct);
 router.get("/", product_controller_1.productController.getAllProduct);
+router.get("/flashproducts", product_controller_1.productController.getFlashSaleProduct);
 router.get("/:id", product_controller_1.productController.getSingleProduct);
-router.delete("/:id", product_controller_1.productController.deleteProduct);
-router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), 
-// validateRequest(adminValidationsSchemas.update),
-product_controller_1.productController.updateProduct);
+router.patch("/delete/:id", (0, auth_1.default)(client_1.UserRole.VENDOR, client_1.UserRole.ADMIN), product_controller_1.productController.deleteProduct);
+router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), product_controller_1.productController.updateProduct);
 exports.ProductRoutes = router;

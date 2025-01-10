@@ -54,7 +54,7 @@ const createProduct = async (req: Request) => {
 
 const updateProduct = async (id: string, payload: any) => {
   const productInfo = await prisma.products.findUniqueOrThrow({
-    where: { id },
+    where: { id, isDeleted: false },
   });
 
   await prisma.$transaction(async (transactionClient) => {
@@ -207,8 +207,11 @@ const getSingleProduct = async (id: string): Promise<Products | null> => {
 };
 
 const deleteProduct = async (id: string) => {
-  const result = await prisma.products.delete({
+  const result = await prisma.products.update({
     where: { id },
+    data: {
+      isDeleted: true,
+    },
   });
   return result;
 };

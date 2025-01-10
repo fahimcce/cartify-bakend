@@ -31,9 +31,7 @@ const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const userData = yield prisma_1.default.vendor.findUniqueOrThrow({
         where: { email: (_a = req.user) === null || _a === void 0 ? void 0 : _a.email },
-        include: {
-            shop: true,
-        },
+        include: { shop: true },
     });
     req.body.shopId = (_b = userData.shop) === null || _b === void 0 ? void 0 : _b.id;
     const shopData = yield prisma_1.default.shop.findUniqueOrThrow({
@@ -42,9 +40,8 @@ const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
     if (!shopData) {
         throw new Error("Shop id is not valid");
     }
-    // console.log(req.body);
-    //Create the product
-    const result = yield prisma_1.default.products.create({
+    // Create the product first
+    const product = yield prisma_1.default.products.create({
         data: {
             name: req.body.name,
             description: req.body.description,
@@ -52,6 +49,53 @@ const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
             images: req.body.images,
             price: req.body.price,
             shopId: req.body.shopId,
+        },
+        include: {
+            categories: true,
+            shop: true,
+        },
+    });
+    const categoryLinks = req.body.categories.map((categoryId) => ({
+        productId: product.id,
+        categoryId: categoryId,
+    }));
+    yield prisma_1.default.categories.createMany({
+        data: categoryLinks,
+    });
+    return product;
+});
+const updateProduct = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const productInfo = yield prisma_1.default.products.findUniqueOrThrow({
+        where: { id, isDeleted: false },
+    });
+    yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+        const { categories } = payload, updateData = __rest(payload, ["categories"]);
+        yield transactionClient.products.update({
+            where: { id },
+            data: Object.assign({}, updateData),
+        });
+        if (categories && categories.length > 0) {
+            yield transactionClient.categories.deleteMany({
+                where: { productId: productInfo.id },
+            });
+            for (const categoryId of categories) {
+                yield transactionClient.categories.create({
+                    data: {
+                        productId: productInfo.id,
+                        categoryId: categoryId,
+                    },
+                });
+            }
+        }
+    }));
+    const result = yield prisma_1.default.products.findUnique({
+        where: { id },
+        include: {
+            categories: {
+                include: {
+                    productCategory: true,
+                },
+            },
         },
     });
     return result;
@@ -83,7 +127,6 @@ const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, fun
     const { limit, page, skip } = paginationHelpers_1.paginationHelpers.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
     const andConditions = [];
-    // console.log(searchTerm);
     if (params.searchTerm) {
         andConditions.push({
             OR: product_contant_1.productFilterableFields.map((field) => ({
@@ -111,7 +154,14 @@ const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, fun
     };
     const result = yield prisma_1.default.products.findMany({
         where: whereConditions,
-        include: { shop: true },
+        include: {
+            shop: true,
+            categories: {
+                include: {
+                    productCategory: true,
+                },
+            },
+        },
         skip,
         take: limit,
         orderBy: options.sortBy && options.sortOrder
@@ -147,50 +197,21 @@ const getSingleProduct = (id) => __awaiter(void 0, void 0, void 0, function* () 
     return result;
 });
 const deleteProduct = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.products.delete({
+    const result = yield prisma_1.default.products.update({
         where: { id },
+        data: {
+            isDeleted: true,
+        },
     });
     return result;
 });
-const updateProduct = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { categories } = payload, productData = __rest(payload, ["categories"]);
-    const productInfo = yield prisma_1.default.products.findUniqueOrThrow({
-        where: { id },
-    });
-    yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        const updateProduct = yield transactionClient.products.update({
-            where: { id },
-            data: Object.assign({}, productData),
-            include: {
-                categories: true,
-            },
-        });
-        if (categories && categories.length > 0) {
-            const deleteFilterProduct = categories.filter((category) => category.isDeleted);
-            for (const categoryId of deleteFilterProduct) {
-                yield transactionClient.categories.deleteMany({
-                    where: {
-                        productId: productInfo.id,
-                        categoryId: categoryId.categoryId,
-                    },
-                });
-            }
-            const createProductFilter = categories.filter((category) => !category.isDeleted);
-            for (const categoryId of createProductFilter) {
-                yield transactionClient.categories.create({
-                    data: {
-                        productId: productInfo.id,
-                        categoryId: categoryId.categoryId,
-                    },
-                });
-            }
-        }
-    }));
-    const result = yield prisma_1.default.products.findUnique({
+const getFlashSaleProduct = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.products.findMany({
         where: {
-            id: productInfo.id,
+            flashSale: true,
         },
         include: {
+            shop: true,
             categories: {
                 include: {
                     productCategory: true,
@@ -207,4 +228,5 @@ exports.productServices = {
     getSingleProduct,
     deleteProduct,
     updateProduct,
+    getFlashSaleProduct,
 };

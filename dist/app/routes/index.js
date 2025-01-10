@@ -12,6 +12,7 @@ const product_routes_1 = require("../modules/Product/product.routes");
 const admin_routes_1 = require("../modules/Admin/admin.routes");
 const order_routes_1 = require("../modules/Order/order.routes");
 const vendor_routes_1 = require("../modules/Vendor/vendor.routes");
+const review_routes_1 = require("../modules/Review/review.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -45,6 +46,10 @@ const moduleRoutes = [
     {
         path: "/vendor",
         route: vendor_routes_1.VendorRoutes,
+    },
+    {
+        path: "/review",
+        route: review_routes_1.ReviewRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

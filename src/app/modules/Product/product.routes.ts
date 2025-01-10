@@ -20,7 +20,11 @@ router.post(
 router.get("/", productController.getAllProduct);
 router.get("/flashproducts", productController.getFlashSaleProduct);
 router.get("/:id", productController.getSingleProduct);
-router.delete("/:id", productController.deleteProduct);
+router.patch(
+  "/delete/:id",
+  auth(UserRole.VENDOR, UserRole.ADMIN),
+  productController.deleteProduct
+);
 router.patch(
   "/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),

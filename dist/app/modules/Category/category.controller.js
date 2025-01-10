@@ -17,6 +17,7 @@ const catchAsync_1 = require("../../../shared/catchAsync");
 const category_service_1 = require("./category.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const createCategory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req === null || req === void 0 ? void 0 : req.user);
     const result = yield category_service_1.categoryServices.createCategory(req);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
@@ -44,6 +45,16 @@ const updateCategory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const getCategoryProducts = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield category_service_1.categoryServices.getCategoryProducts(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Category Based Products retrive SuccessFully",
+        data: result,
+    });
+}));
 const deleteCategory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //   console.log(req.params.id);
     const result = yield category_service_1.categoryServices.deleteCategory(req.params.id);
@@ -59,4 +70,5 @@ exports.categoryController = {
     getCategories,
     updateCategory,
     deleteCategory,
+    getCategoryProducts,
 };

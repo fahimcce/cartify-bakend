@@ -79,6 +79,15 @@ const updateProduct = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
         data: result,
     });
 }));
+const getFlashSaleProduct = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield product_service_1.productServices.getFlashSaleProduct();
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "FlashSale Products Fetched Successfully !!",
+        data: result,
+    });
+}));
 exports.productController = {
     createProduct,
     duplicateProduct,
@@ -86,4 +95,5 @@ exports.productController = {
     getSingleProduct,
     deleteProduct,
     updateProduct,
+    getFlashSaleProduct,
 };

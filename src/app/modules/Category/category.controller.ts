@@ -4,6 +4,7 @@ import { categoryServices } from "./category.service";
 import sendResponse from "../../../shared/sendResponse";
 
 const createCategory = catchAsync(async (req: Request, res: Response) => {
+  console.log(req?.user);
   const result = await categoryServices.createCategory(req);
   sendResponse(res, {
     statusCode: 200,

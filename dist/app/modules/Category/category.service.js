@@ -23,7 +23,6 @@ const createCategory = (req) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getCategories = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     let whereConditions;
-    // Apply filter only if payload.name exists
     if (payload.name) {
         whereConditions = {
             OR: category_constant_1.categorySearchableFields.map((field) => ({
@@ -60,10 +59,23 @@ const deleteCategory = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const getCategoryProducts = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const categories = yield prisma_1.default.categories.findMany({
+        where: {
+            categoryId: id,
+        },
+        include: {
+            products: true,
+        },
+    });
+    const products = categories.flatMap((category) => category.products);
+    return products;
+});
 exports.categoryServices = {
     createCategory,
     getCategories,
     updateCategory,
     deleteCategory,
     singleCategory,
+    getCategoryProducts,
 };
