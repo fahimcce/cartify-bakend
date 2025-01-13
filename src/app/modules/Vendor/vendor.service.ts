@@ -22,14 +22,15 @@ const getMyShop = async (req: Request) => {
 };
 
 const getMyShopProducts = async (req: Request) => {
-  // console.log("clickeds");
   const user = req.user;
   const userData = await prisma.vendor.findUniqueOrThrow({
     where: { email: user?.email },
     include: {
       shop: {
         include: {
-          products: true,
+          products: {
+            where: { isDeleted: false }, // Filter products where isDeleted is false
+          },
         },
       },
     },
