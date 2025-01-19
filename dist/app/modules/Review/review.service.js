@@ -56,6 +56,27 @@ const postReview = (req) => __awaiter(void 0, void 0, void 0, function* () {
     }));
     return result;
 });
+const productReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.reviews.findMany({
+        where: {
+            productId: id,
+        },
+    });
+    const reviewsWithCustomerName = yield Promise.all(result.map((_a) => __awaiter(void 0, [_a], void 0, function* ({ rating, review, customerId }) {
+        const customer = yield prisma_1.default.customer.findUnique({
+            where: {
+                id: customerId,
+            },
+        });
+        return {
+            rating,
+            review,
+            customerName: customer === null || customer === void 0 ? void 0 : customer.name,
+        };
+    })));
+    return reviewsWithCustomerName;
+});
 exports.ReviewServices = {
     postReview,
+    productReview,
 };

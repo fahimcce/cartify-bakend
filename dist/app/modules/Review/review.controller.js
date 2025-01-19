@@ -25,6 +25,17 @@ const postReview = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, 
         data: review,
     });
 }));
+const productReview = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield review_service_1.ReviewServices.productReview(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Prodcuts Review fetched successfully!",
+        data: result,
+    });
+}));
 exports.ReviewController = {
     postReview,
+    productReview,
 };

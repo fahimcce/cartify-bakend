@@ -12,7 +12,18 @@ const postReview = catchAsync(async (req: Request, res: Response) => {
     data: review,
   });
 });
+const productReview = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ReviewServices.productReview(id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Prodcuts Review fetched successfully!",
+    data: result,
+  });
+});
 
 export const ReviewController = {
   postReview,
+  productReview,
 };

@@ -56,6 +56,33 @@ const postReview = async (req: Request) => {
   return result;
 };
 
+const productReview = async (id: string) => {
+  const result = await prisma.reviews.findMany({
+    where: {
+      productId: id,
+    },
+  });
+
+  const reviewsWithCustomerName = await Promise.all(
+    result.map(async ({ rating, review, customerId }) => {
+      const customer = await prisma.customer.findUnique({
+        where: {
+          id: customerId,
+        },
+      });
+
+      return {
+        rating,
+        review,
+        customerName: customer?.name,
+      };
+    })
+  );
+
+  return reviewsWithCustomerName;
+};
+
 export const ReviewServices = {
   postReview,
+  productReview,
 };

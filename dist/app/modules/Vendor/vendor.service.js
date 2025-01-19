@@ -43,14 +43,15 @@ const getMyShop = (req) => __awaiter(void 0, void 0, void 0, function* () {
     return shop;
 });
 const getMyShopProducts = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log("clickeds");
     const user = req.user;
     const userData = yield prisma_1.default.vendor.findUniqueOrThrow({
         where: { email: user === null || user === void 0 ? void 0 : user.email },
         include: {
             shop: {
                 include: {
-                    products: true,
+                    products: {
+                        where: { isDeleted: false }, // Filter products where isDeleted is false
+                    },
                 },
             },
         },
