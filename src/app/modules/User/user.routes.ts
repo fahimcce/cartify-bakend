@@ -7,11 +7,11 @@ import { userValidation } from "./user.validation";
 const router = express.Router();
 
 router.get("/", userController.getAllUsers);
-// router.get(
-//   "/me",
-//   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
-//   userController.getMyProfile
-// );
+router.get(
+  "/me",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  userController.myProfile
+);
 
 // router.patch(
 //   "/:id/status",
@@ -39,6 +39,11 @@ router.post(
   userController.createCustomer
 );
 
-router.patch("/:id", auth(UserRole.ADMIN), userController.updateUser);
+router.patch(
+  "/updateProfile",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  userController.updateUser
+);
+router.patch("/:id", auth(UserRole.ADMIN), userController.updateUserToDB);
 
 export const userRoutes = router;

@@ -47,6 +47,7 @@ const loginUserToDb = async (payload: { email: string; password: string }) => {
       name: validUser.name,
       id: validUser.id,
       profilePhoto: validUser?.profilePhoto,
+      userId: userData.id,
     },
     config.jwt_access_token as Secret,
     config.jwt_expires_in as string

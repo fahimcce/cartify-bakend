@@ -33,8 +33,7 @@ const createCustomer = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await userServices.updateUser(id, req.body);
+  const result = await userServices.updateUser(req);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -53,10 +52,33 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const myProfile = catchAsync(async (req: Request, res: Response) => {
+  const result = await userServices.myProfile(req);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User Profile fetched successfully",
+    data: result,
+  });
+});
+
+const updateUserToDB = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await userServices.updateUserToDB(id, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User Updated successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createAdmin,
   createVendor,
   createCustomer,
   updateUser,
   getAllUsers,
+  myProfile,
+  updateUserToDB,
 };
